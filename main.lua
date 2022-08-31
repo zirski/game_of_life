@@ -1,8 +1,8 @@
 G = love.graphics
 
 function love.load()
-    NumTiles = 50
-    GridSize = 75
+    NumTiles = 250
+    GridSize = 100
     -- TileSize = 10
     
     Tiles = {}
@@ -14,83 +14,55 @@ function love.load()
     end
     generateTiles(NumTiles)
 
-print(#Tiles)
+    print(#Tiles)
 end
 
-function updateCell(x, y)
-    local NumNeighbors = 0
 
-    xmin = x - 1
-    xadd = x + 1
-    ymin = y - 1
-    yadd = y + 1
-
-    if xmin == 0 then
-        xmin = GridSize
+function updateCell(a, b)
+    local check = {
+        {x = a + 1, y = b},
+        {x = a - 1, y = b},
+        {x = a, y = b + 1},
+        {x = a, y = b - 1},
+        {x = a - 1, y = b + 1},
+        {x = a + 1, y = b - 1},
+        {x = a + 1, y = b + 1},
+        {x = a - 1, y = b - 1}
+    }
+    local NumNeighbors = 0 -- Cell Neighbours
+    
+    for i, v in ipairs(check) do
+        if v.x >= 1 and v.x <= GridSize and v.y >= 1 and v.y <= GridSize then
+            if Tiles[v.x][v.y] then -- switched [v.x] and [v.y] values lol - previous author must have reversed x and y axis
+                NumNeighbors = NumNeighbors + 1
+            end
+        end
     end
 
-    if xadd == GridSize + 1 then
-        xadd = 1
-    end
-
-    if ymin == 0 then
-        ymin = GridSize
-    end
-
-    if yadd == GridSize + 1 then
-        yadd = 1
+    if Tiles[a][b] and NumNeighbors < 2 then
+        Tiles[a][b] = false
     end
     
-    if Tiles[xmin][ymin] then
-        NumNeighbors = NumNeighbors + 1
-    end
-
-    if Tiles[x][ymin] then
-        NumNeighbors = NumNeighbors + 1
-    end
-
-    if Tiles[xadd][ymin] then
-        NumNeighbors = NumNeighbors + 1
-    end
-
-    if Tiles[xmin][y] then
-        NumNeighbors = NumNeighbors + 1
-    end
-
-    if Tiles[xadd][y] then
-        NumNeighbors = NumNeighbors + 1
-    end
-
-    if Tiles[xmin][yadd] then
-        NumNeighbors = NumNeighbors + 1
-    end
-
-    if Tiles[x][yadd] then
-        NumNeighbors = NumNeighbors + 1
-    end
-
-    if Tiles[xadd][yadd] then
-        NumNeighbors = NumNeighbors + 1
-    end
-
-    if NumNeighbors < 2 and Tiles[x][y] then
-        Tiles[x][y] = false
+    if Tiles[a][b] and (NumNeighbors == 2 or NumNeighbors == 3) then
+        Tiles[a][b] = true
     end
     
-    if NumNeighbors == 2 or NumNeighbors == 3 and not Tiles[x][y] then
-        Tiles[x][y] = true
+    if Tiles[a][b] and NumNeighbors > 3 then
+        Tiles[a][b] = false
     end
     
-    if NumNeighbors > 3 and Tiles[x][y] then
-        Tiles[x][y] = false
-    end
-    
-    if NumNeighbors == 3 and not Tiles[x][y] then
-        Tiles[x][y] = true
+    if not Tiles[a][b] and NumNeighbors == 3 then
+        Tiles[a][b] = true
     end
 end
 
 function love.update(dt)
+    for i = 1, GridSize do
+        for j = 1, GridSize do
+            updateCell(i, j)
+        end
+    end
+    -- updateCell(love.math.random(1, GridSize), love.math.random(1, GridSize))
 end
 
 function love.draw()
@@ -129,5 +101,8 @@ function love.keypressed(key)
                 updateCell(i, j)
             end
         end
+        -- for i = 1, 1000 do
+        --     updateCell(love.math.random(1, GridSize), love.math.random(1, GridSize))
+        -- end
     end
 end
