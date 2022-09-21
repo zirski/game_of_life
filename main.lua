@@ -1,8 +1,8 @@
 G = love.graphics
 
 function love.load()
-    NumTiles = 250
-    GridSize = 100
+    GridSize = 250
+    NumTiles = GridSize
     -- TileSize = 10
     
     Tiles = {}
@@ -17,6 +17,29 @@ function love.load()
     print(#Tiles)
 end
 
+function love.update(dt)
+    for i = 1, GridSize do
+        for j = 1, GridSize do
+            updateCell(i, j)
+        end
+    end
+    --updateCell(love.math.random(1, GridSize), love.math.random(1, GridSize))
+end
+
+function love.draw()
+    for i = 1, #Tiles do
+        for j = 1, #Tiles do
+            local x = (G.getWidth() / #Tiles) * (i - 1)
+            local y = (G.getHeight() / #Tiles) * (j - 1)
+            
+            if Tiles[i][j] then
+                G.setColor(1, 1, 1, 1)
+            end
+            G.rectangle("fill", x, y, G.getWidth() / #Tiles, G.getHeight() / #Tiles)
+            G.setColor(0, 0, 0, 1)
+        end
+    end
+end
 
 function updateCell(a, b)
     local check = {
@@ -56,35 +79,11 @@ function updateCell(a, b)
     end
 end
 
-function love.update(dt)
-    for i = 1, GridSize do
-        for j = 1, GridSize do
-            updateCell(i, j)
-        end
-    end
-    -- updateCell(love.math.random(1, GridSize), love.math.random(1, GridSize))
-end
-
-function love.draw()
-    for i = 1, #Tiles do
-        for j = 1, #Tiles do
-            local x = (G.getWidth() / #Tiles) * (i - 1)
-            local y = (G.getHeight() / #Tiles) * (j - 1)
-
-            if Tiles[i][j] then
-                G.setColor(1, 1, 1, 1)
-            end
-            G.rectangle("fill", x, y, G.getWidth() / #Tiles, G.getHeight() / #Tiles)
-            G.setColor(0, 0, 0, 1)
-        end
-    end
-end
-
 function generateTiles(numTiles)
     for i = 1, numTiles do
 
-        local x = love.math.random(1, GridSize)
-        local y = love.math.random(1, GridSize)
+        local x = love.math.random(1, GridSize / 4) -- seeds starting tiles in upper left quadrant of window
+        local y = love.math.random(1, GridSize / 4)
 
         Tiles[x][y] = true
     end
